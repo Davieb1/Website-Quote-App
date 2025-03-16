@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Added for mobile scaling -->
+    <title>Website Quote App</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 4vw; /* Scales with viewport */
+            background-color: #f5f5f5;
+            max-width: 900px;
+            margin: 0 auto;
+            font-size: 16px; /* Base for rem */
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 1.8rem; /* Scales nicely */
+        }
+        form {
+            background: white;
+            padding: 4vw;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 4vw;
+        }
+        label {
+            display: block;
+            margin: 3vw 0;
+            font-size: 1.1rem;
+            color: #34495e;
+        }
+        input[type="number"] {
+            padding: 2vw;
+            font-size: 1rem;
+            width: 25vw; /* Scales with screen */
+            max-width: 100px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        textarea {
+            width: 100%;
+            height: 25vw; /* Scales with screen */
+            max-height: 100px;
+            padding: 2vw;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        select {
+            padding: 2vw;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 25vw; /* Matches input */
+            max-width: 100px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 2.5vw 5vw;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            width: 100%; /* Full width on mobile */
+            min-height: 44px; /* Tappable size */
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #quoteResult {
+            display: none;
+            background: white;
+            padding: 4vw;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        #quoteResult.show {
+            display: block;
+        }
+        .quote-header {
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 2vw;
+            margin-bottom: 4vw;
+        }
+        .quote-header img {
+            max-width: 50vw; /* Scales down */
+            height: auto;
+            margin-bottom: 2vw;
+            margin-top: 2vw;
+        }
+        .quote-header h2 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+        .quote-section {
+            margin-bottom: 4vw;
+        }
+        .quote-section h3 {
+            color: #3498db;
+            margin-bottom: 2vw;
+            font-size: 1.3rem;
+        }
+        .quote-section p,
+        .quote-section ul {
+            margin: 1vw 0;
+            color: #34495e;
+            font-size: 1rem;
+        }
+        .quote-section ul {
+            padding-left: 5vw;
+        }
+        .download-btn {
+            display: block;
+            margin: 4vw auto 0;
+            background-color: #2ecc71;
+        }
+        .download-btn:hover {
+            background-color: #27ae60;
+        }
+        img {
+            margin-bottom: 2vw;
+            width: 20vw; /* Scales logo */
+            max-width: 6rem;
+            height: auto; /* Keeps aspect ratio */
+            border-radius: 50%;
+        }
+
+        /* Media Query for iPhone 12 Mini (375px) and smaller */
+        @media (max-width: 375px) {
+            body {
+                padding: 2vw;
+                font-size: 14px; /* Slightly smaller base */
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            form, #quoteResult {
+                padding: 3vw;
+            }
+            label {
+                margin: 2vw 0;
+                font-size: 1rem;
+            }
+            input[type="number"], select {
+                width: 30vw;
+                padding: 2vw;
+            }
+            textarea {
+                height: 20vw;
+            }
+            button {
+                padding: 3vw 5vw;
+            }
+            .quote-header h2 {
+                font-size: 1.3rem;
+            }
+            .quote-section h3 {
+                font-size: 1.2rem;
+            }
+            .quote-section p, .quote-section ul {
+                font-size: 0.9rem;
+            }
+            img {
+                width: 25vw;
+            }
+            .quote-header img {
+                max-width: 40vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Website Quote Calculator</h1>
+    <form id="quoteForm">
+        <img src="Dynamic Fit Tech Logo.jpg" alt="Dynamic Fit Tech Logo">
+        <label>Number of Pages: <input type="number" id="pages" min="1" value="1"></label>
+        <label><input type="checkbox" name="features" value="e-commerce"> E-commerce</label>
+        <label><input type="checkbox" name="features" value="custom-design"> Custom Design</label>
+        <label><input type="checkbox" name="features" value="cms"> CMS</label>
+        <label><input type="checkbox" name="features" value="seo"> SEO Optimisation</label>
+        <label><input type="checkbox" name="features" value="responsive"> Responsive Design</label>
+        <label><input type="checkbox" name="features" value="api-integration"> API Integration</label>
+        <label>Additional Features/Notes: <textarea id="additional" placeholder="e.g., Custom login system, animations, etc."></textarea></label>
+        <label>Discount: 
+            <select id="discount">
+                <option value="0">None</option>
+                <option value="5">5% Off</option>
+                <option value="10">10% Off</option>
+                <option value="20">20% Off</option>
+            </select>
+        </label>
+        <button type="submit">Generate Quote</button>
+    </form>
+
+    <div id="quoteResult">
+        <div class="quote-header">
+            <img src="Dynamic Fit Tech Logo.jpg" alt="Dynamic Fit Tech Logo" id="quoteLogo">
+            <h2>Website Development Quote</h2>
+            <p>Prepared by Dynamic Fit Tech - Date: <span id="quoteDate"></span></p>
+            <p>Quote valid for 30 days from date requested</p>
+        </div>
+        <div class="quote-section">
+            <h3>Project Details</h3>
+            <p>Pages: <span id="quotePages"></span></p>
+            <p>Features: <span id="quoteFeatures"></span></p>
+            <p>Additional Features/Notes: <span id="quoteAdditional"></span></p>
+        </div>
+        <div class="quote-section">
+            <h3>Quote Summary</h3>
+            <p>Total Time: <span id="quoteTime"></span> hours</p>
+            <p>Original Cost: £<span id="quoteOriginalCost"></span></p>
+            <p>Discount Applied: <span id="quoteModifier"></span></p>
+            <p>Total Cost: £<span id="quoteCost"></span></p>
+            <p>Complexity: <span id="quoteComplexity"></span></p>
+            <p>Resources: <span id="quoteResources"></span></p>
+        </div>
+        <div class="quote-section">
+            <h3>Estimated Timeline</h3>
+            <p>Total Development Time: <span id="quoteTimeline"></span></p>
+            <ul id="timelineBreakdown"></ul>
+        </div>
+        <div class="quote-section">
+            <h3>Cost Breakdown</h3>
+            <ul id="quoteBreakdown"></ul>
+        </div>
+        <button class="download-btn" id="downloadBtn">Download Quote (PDF)</button>
+    </div>
+
+    <!-- jsPDF CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        const { jsPDF } = window.jspdf;
+
+        function calculateQuote(pages, features, additional, discountPercent) {
+            const hourlyRate = 65;
+            const hoursPerWeek = 20;
+            let totalTime = 0;
+            let breakdown = [];
+            let timelineBreakdown = [];
+            let complexity = 'Low';
+            const resources = new Set(['HTML', 'CSS', 'JavaScript']);
+
+            pages = Math.max(1, pages || 1);
+            const pageTime = pages * 5;
+            totalTime += pageTime;
+            breakdown.push(`${pages} Page(s): ${pageTime} hours, £${pageTime * hourlyRate}`);
+            timelineBreakdown.push(`${pages} Page(s): ${Math.ceil(pageTime / hoursPerWeek)} week(s)`);
+
+            const featureCosts = {
+                'e-commerce': { time: 20, resources: ['Node.js', 'Database'] },
+                'custom-design': { time: 15, resources: ['Photoshop', 'CSS'] },
+                'cms': { time: 10, resources: ['WordPress'] },
+                'seo': { time: 8, resources: ['SEO Tools'] },
+                'responsive': { time: 5, resources: [] },
+                'api-integration': { time: 15, resources: ['Node.js'] }
+            };
+
+            features.forEach(feature => {
+                if (featureCosts[feature]) {
+                    const { time, resources: extraResources } = featureCosts[feature];
+                    totalTime += time;
+                    breakdown.push(`${feature}: ${time} hours, £${time * hourlyRate}`);
+                    timelineBreakdown.push(`${feature}: ${Math.ceil(time / hoursPerWeek)} week(s)`);
+                    extraResources.forEach(res => resources.add(res));
+                }
+            });
+
+            let additionalTime = 0;
+            if (additional.trim()) {
+                additionalTime = 10;
+                totalTime += additionalTime;
+                breakdown.push(`Additional Features (${additional}): ${additionalTime} hours, £${additionalTime * hourlyRate}`);
+                timelineBreakdown.push(`Additional Features: ${Math.ceil(additionalTime / hoursPerWeek)} week(s)`);
+                resources.add('Custom Development');
+            }
+
+            if (totalTime > 50) complexity = 'High';
+            else if (totalTime > 20) complexity = 'Medium';
+
+            const totalCost = totalTime * hourlyRate;
+            const discountMultiplier = 1 - (discountPercent / 100);
+            const discountedCost = Math.round(totalCost * discountMultiplier);
+            const totalWeeks = Math.ceil(totalTime / hoursPerWeek);
+
+            return { 
+                totalTime, 
+                totalCost, 
+                discountedCost,
+                discountPercent,
+                complexity, 
+                resources: Array.from(resources), 
+                breakdown, 
+                timelineBreakdown, 
+                totalWeeks, 
+                pages, 
+                features, 
+                additional 
+            };
+        }
+
+        let currentQuote = null;
+
+        document.getElementById('quoteForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const pages = parseInt(document.getElementById('pages').value);
+            const features = Array.from(document.querySelectorAll('input[name="features"]:checked')).map(input => input.value);
+            const additional = document.getElementById('additional').value;
+            const discountPercent = parseInt(document.getElementById('discount').value);
+
+            currentQuote = calculateQuote(pages, features, additional, discountPercent);
+
+            document.getElementById('quoteDate').textContent = new Date().toLocaleDateString();
+            document.getElementById('quotePages').textContent = currentQuote.pages;
+            document.getElementById('quoteFeatures').textContent = currentQuote.features.length > 0 ? currentQuote.features.join(', ') : 'None';
+            document.getElementById('quoteAdditional').textContent = currentQuote.additional.trim() || 'None';
+            document.getElementById('quoteTime').textContent = currentQuote.totalTime;
+            document.getElementById('quoteOriginalCost').textContent = currentQuote.totalCost;
+            document.getElementById('quoteModifier').textContent = currentQuote.discountPercent > 0 ? `${currentQuote.discountPercent}% off` : 'None';
+            document.getElementById('quoteCost').textContent = currentQuote.discountedCost;
+            document.getElementById('quoteComplexity').textContent = currentQuote.complexity;
+            document.getElementById('quoteResources').textContent = currentQuote.resources.join(', ');
+            document.getElementById('quoteTimeline').textContent = `${currentQuote.totalWeeks} week(s)`;
+
+            const breakdownList = document.getElementById('quoteBreakdown');
+            breakdownList.innerHTML = '';
+            currentQuote.breakdown.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                breakdownList.appendChild(li);
+            });
+
+            const timelineList = document.getElementById('timelineBreakdown');
+            timelineList.innerHTML = '';
+            currentQuote.timelineBreakdown.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                timelineList.appendChild(li);
+            });
+
+            document.getElementById('quoteResult').classList.add('show');
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            if (!currentQuote) {
+                alert('Please generate a quote first!');
+                return;
+            }
+
+            const doc = new jsPDF();
+
+            const img = document.getElementById('quoteLogo');
+            if (img.complete && img.naturalWidth !== 0) {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                const imgData = canvas.toDataURL('image/jpeg');
+                doc.addImage(imgData, 'JPEG', 80, 10, 50, 50);
+            } else {
+                console.warn('Logo not loaded, skipping in PDF.');
+            }
+
+            doc.setFontSize(16);
+            doc.text('Website Development Quote', 105, 70, { align: 'center' });
+            doc.setFontSize(12);
+            doc.text(`Prepared by Dynamic Fit Tech - Date: ${new Date().toLocaleDateString()}`, 105, 80, { align: 'center' });
+            doc.text('Quote valid for 30 days from date requested', 105, 90, { align: 'center' });
+
+            doc.setFontSize(14);
+            doc.text('Project Details', 20, 110);
+            doc.setFontSize(12);
+            doc.text(`Pages: ${currentQuote.pages}`, 20, 120);
+            doc.text(`Features: ${currentQuote.features.length > 0 ? currentQuote.features.join(', ') : 'None'}`, 20, 130);
+            doc.text(`Additional Features/Notes: ${currentQuote.additional.trim() || 'None'}`, 20, 140, { maxWidth: 170 });
+
+            doc.setFontSize(14);
+            doc.text('Quote Summary', 20, 160);
+            doc.setFontSize(12);
+            doc.text(`Total Time: ${currentQuote.totalTime} hours`, 20, 170);
+            doc.text(`Original Cost: £${currentQuote.totalCost}`, 20, 180);
+            doc.text(`Discount Applied: ${currentQuote.discountPercent > 0 ? currentQuote.discountPercent + '% off' : 'None'}`, 20, 190);
+            doc.text(`Total Cost: £${currentQuote.discountedCost}`, 20, 200);
+            doc.text(`Complexity: ${currentQuote.complexity}`, 20, 210);
+            doc.text(`Resources: ${currentQuote.resources.join(', ')}`, 20, 220, { maxWidth: 170 });
+
+            doc.setFontSize(14);
+            doc.text('Estimated Timeline', 20, 240);
+            doc.setFontSize(12);
+            doc.text(`Total Development Time: ${currentQuote.totalWeeks} week(s)`, 20, 250);
+            let y = 260;
+            currentQuote.timelineBreakdown.forEach(item => {
+                doc.text(`- ${item}`, 20, y, { maxWidth: 170 });
+                y += 10;
+            });
+
+            doc.setFontSize(14);
+            doc.text('Cost Breakdown', 20, y + 10);
+            doc.setFontSize(12);
+            y += 20;
+            currentQuote.breakdown.forEach(item => {
+                doc.text(`- ${item}`, 20, y, { maxWidth: 170 });
+                y += 10;
+            });
+
+            doc.save('Website_Quote_DynamicFitTech.pdf');
+        });
+    </script>
+</body>
+</html>
