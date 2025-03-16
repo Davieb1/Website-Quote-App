@@ -31,7 +31,7 @@
             font-size: 18px;
             color: #34495e;
         }
-        input[type="number"] {
+        input[type="number"], input[type="text"] {
             padding: 5px;
             font-size: 16px;
             width: 100px;
@@ -125,64 +125,71 @@
             height: auto;
             border-radius: 50%;
         }
+        .desktop-only {
+            display: block;
+        }
 
         /* Media Query for iPhone 12 Mini (375px) and smaller */
         @media (max-width: 375px) {
-            body {
-                padding: 10px;
-                font-size: 14px;
-            }
-            h1 {
-                font-size: 22px;
-            }
-            form, #quoteResult {
-                padding: 15px;
-            }
-            label {
-                margin: 10px 0;
-                font-size: 16px;
-            }
-            input[type="number"], select {
-                width: 90px;
-                padding: 4px;
-                font-size: 14px;
-            }
-            textarea {
-                height: 80px;
-                padding: 4px;
-                font-size: 14px;
-            }
-            button {
-                padding: 8px 16px;
-                font-size: 16px;
-                width: 100%;
-                min-height: 44px;
-            }
-            .quote-header h2 {
-                font-size: 20px;
-            }
-            .quote-section h3 {
-                font-size: 18px;
-            }
-            .quote-section p, .quote-section ul {
-                font-size: 14px;
-            }
-            img {
-                width: 80px;
-            }
-            .quote-header img {
-                max-width: 150px;
-            }
-            .quote-section ul {
-                padding-left: 15px;
-            }
-        }
+    body {
+        padding: 10px;
+        font-size: 14px;
+    }
+    h1 {
+        font-size: 22px;
+    }
+    form, #quoteResult {
+        padding: 15px;
+    }
+    label {
+        margin: 10px 0;
+        font-size: 16px;
+    }
+    input[type="number"], select {
+        width: 90px;
+        padding: 4px;
+        font-size: 14px;
+    }
+    textarea {
+        height: 80px;
+        padding: 4px;
+        font-size: 14px;
+    }
+    button {
+        padding: 8px 16px;
+        font-size: 16px;
+        width: 100%;
+        min-height: 44px;
+    }
+    .quote-header h2 {
+        font-size: 20px;
+    }
+    .quote-section h3 {
+        font-size: 18px;
+    }
+    .quote-section p, .quote-section ul {
+        font-size: 14px;
+    }
+    img {
+        width: 80px;
+    }
+    .quote-header img {
+        max-width: 150px;
+    }
+    .quote-section ul {
+        padding-left: 15px;
+    }
+    .desktop-only {
+        display: none;
+    }
+}
     </style>
 </head>
 <body>
     <h1>Website Quote Calculator</h1>
     <form id="quoteForm">
         <img src="Dynamic Fit Tech Logo.jpg" alt="Dynamic Fit Tech Logo">
+        <label class="desktop-only">Client Business Name (Optional): <input type="text" id="businessName"></label>
         <label>Number of Pages: <input type="number" id="pages" min="1" value="1"></label>
         <label><input type="checkbox" name="features" value="e-commerce"> E-commerce</label>
         <label><input type="checkbox" name="features" value="custom-design"> Custom Design</label>
@@ -211,6 +218,7 @@
         </div>
         <div class="quote-section">
             <h3>Project Details</h3>
+            <p>Business: <span id="quoteBusiness"></span></p>
             <p>Pages: <span id="quotePages"></span></p>
             <p>Features: <span id="quoteFeatures"></span></p>
             <p>Additional Features/Notes: <span id="quoteAdditional"></span></p>
@@ -241,7 +249,7 @@
     <script>
         const { jsPDF } = window.jspdf;
 
-        function calculateQuote(pages, features, additional, discountPercent) {
+        function calculateQuote(pages, features, additional, discountPercent, businessName) {
             const hourlyRate = 65;
             const hoursPerWeek = 20;
             let totalTime = 0;
@@ -304,7 +312,8 @@
                 totalWeeks, 
                 pages, 
                 features, 
-                additional 
+                additional,
+                businessName 
             };
         }
 
@@ -316,10 +325,12 @@
             const features = Array.from(document.querySelectorAll('input[name="features"]:checked')).map(input => input.value);
             const additional = document.getElementById('additional').value;
             const discountPercent = parseInt(document.getElementById('discount').value);
+            const businessName = document.getElementById('businessName').value.trim();
 
-            currentQuote = calculateQuote(pages, features, additional, discountPercent);
+            currentQuote = calculateQuote(pages, features, additional, discountPercent, businessName);
 
             document.getElementById('quoteDate').textContent = new Date().toLocaleDateString();
+            document.getElementById('quoteBusiness').textContent = currentQuote.businessName || 'Not Provided';
             document.getElementById('quotePages').textContent = currentQuote.pages;
             document.getElementById('quoteFeatures').textContent = currentQuote.features.length > 0 ? currentQuote.features.join(', ') : 'None';
             document.getElementById('quoteAdditional').textContent = currentQuote.additional.trim() || 'None';
@@ -339,8 +350,8 @@
                 breakdownList.appendChild(li);
             });
 
-            const timelineList = document.getElementById('timelineBreakdown'); // Fixed typo here
-            timelineList.innerHTML = ''; // Fixed typo here
+            const timelineList = document.getElementById('timelineBreakdown');
+            timelineList.innerHTML = '';
             currentQuote.timelineBreakdown.forEach(item => {
                 const li = document.createElement('li');
                 li.textContent = item;
@@ -357,7 +368,13 @@
             }
 
             const doc = new jsPDF();
+            const businessName = currentQuote.businessName || 'DynamicFitTech';
+            const filename = businessName ? `Website_Quote_${businessName.replace(/\s+/g, '')}_${new Date().toISOString().split('T')[0]}.pdf` : 'Website_Quote_DynamicFitTech.pdf';
 
+
+            // Header
+            doc.setFillColor(230, 230, 230); // Light gray background
+            doc.rect(0, 0, 210, 40, 'F');
             const img = document.getElementById('quoteLogo');
             if (img.complete && img.naturalWidth !== 0) {
                 const canvas = document.createElement('canvas');
@@ -366,54 +383,85 @@
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0);
                 const imgData = canvas.toDataURL('image/jpeg');
-                doc.addImage(imgData, 'JPEG', 80, 10, 50, 50);
-            } else {
-                console.warn('Logo not loaded, skipping in PDF.');
+                doc.addImage(imgData, 'JPEG', 10, 5, 30, 30); // Smaller logo
             }
-
             doc.setFontSize(16);
-            doc.text('Website Development Quote', 105, 70, { align: 'center' });
-            doc.setFontSize(12);
-            doc.text(`Prepared by Dynamic Fit Tech - Date: ${new Date().toLocaleDateString()}`, 105, 80, { align: 'center' });
-            doc.text('Quote valid for 30 days from date requested', 105, 90, { align: 'center' });
+            doc.setFont('helvetica', 'bold');
+            doc.text('Website Development Quote', 105, 20, { align: 'center' });
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            doc.text('Dynamic Fit Tech', 10, 45);
+            doc.text('Email: contact@dynamicfittech.com | Website: www.dynamicfittech.com', 10, 50); /* Change the email here for the contact */
+            doc.text(`Quote Date: ${new Date().toLocaleDateString()}`, 190, 45, { align: 'right' });
+            doc.text('Valid for 30 days', 190, 50, { align: 'right' });
 
-            doc.setFontSize(14);
-            doc.text('Project Details', 20, 110);
+            // Client Info
             doc.setFontSize(12);
-            doc.text(`Pages: ${currentQuote.pages}`, 20, 120);
-            doc.text(`Features: ${currentQuote.features.length > 0 ? currentQuote.features.join(', ') : 'None'}`, 20, 130);
-            doc.text(`Additional Features/Notes: ${currentQuote.additional.trim() || 'None'}`, 20, 140, { maxWidth: 170 });
+            doc.text(`Prepared for: ${currentQuote.businessName || 'Client'}`, 10, 65);
+            doc.setDrawColor(200, 200, 200);
+            doc.line(10, 67, 100, 67); // Underline
 
-            doc.setFontSize(14);
-            doc.text('Quote Summary', 20, 160);
-            doc.setFontSize(12);
-            doc.text(`Total Time: ${currentQuote.totalTime} hours`, 20, 170);
-            doc.text(`Original Cost: £${currentQuote.totalCost}`, 20, 180);
-            doc.text(`Discount Applied: ${currentQuote.discountPercent > 0 ? currentQuote.discountPercent + '% off' : 'None'}`, 20, 190);
-            doc.text(`Total Cost: £${currentQuote.discountedCost}`, 20, 200);
-            doc.text(`Complexity: ${currentQuote.complexity}`, 20, 210);
-            doc.text(`Resources: ${currentQuote.resources.join(', ')}`, 20, 220, { maxWidth: 170 });
+            // Summary Section
+            doc.setFillColor(245, 245, 245);
+            doc.rect(10, 75, 190, 20, 'F');
+            doc.setFontSize(10);
+            doc.text(`Total Quote: £${currentQuote.discountedCost}`, 15, 85);
+            doc.text(`Timeline: ${currentQuote.totalWeeks} week(s)`, 80, 85);
+            doc.text(`Complexity: ${currentQuote.complexity}`, 140, 85);
 
-            doc.setFontSize(14);
-            doc.text('Estimated Timeline', 20, 240);
-            doc.setFontSize(12);
-            doc.text(`Total Development Time: ${currentQuote.totalWeeks} week(s)`, 20, 250);
-            let y = 260;
-            currentQuote.timelineBreakdown.forEach(item => {
-                doc.text(`- ${item}`, 20, y, { maxWidth: 170 });
-                y += 10;
-            });
+            // Breakdown Table
+            doc.setFillColor(230, 230, 230);
+            doc.rect(10, 100, 190, 10, 'F');
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Description', 15, 107);
+            doc.text('Est. Hours', 110, 107);
+            doc.text('Cost (£)', 185, 107, { align: 'right' });
+            doc.setFont('helvetica', 'normal');
 
-            doc.setFontSize(14);
-            doc.text('Cost Breakdown', 20, y + 10);
-            doc.setFontSize(12);
-            y += 20;
+            let tableY = 115;
             currentQuote.breakdown.forEach(item => {
-                doc.text(`- ${item}`, 20, y, { maxWidth: 170 });
-                y += 10;
+                const [desc, hoursCost] = item.split(': ');
+                const [hours, cost] = hoursCost.split(', £');
+                const lines = doc.splitTextToSize(desc, 90);
+                lines.forEach((line, index) => {
+                    doc.text(line, 15, tableY + (index * 8));
+                });
+                doc.text(hours.split(' hours')[0], 110, tableY);
+                doc.text(`£${cost}`, 185, tableY, { align: 'right' });
+                tableY += 8 * (lines.length > 1 ? lines.length : 1);
             });
 
-            doc.save('Website_Quote_DynamicFitTech.pdf');
+            // Additional Details
+            doc.setFontSize(10);
+            const resourcesLines = doc.splitTextToSize(`Resources: ${currentQuote.resources.join(', ')}`, 180);
+            resourcesLines.forEach((line, index) => {
+                doc.text(line, 15, tableY + 10 + (index * 8));
+            });
+            const notesLines = doc.splitTextToSize(`Notes: ${currentQuote.additional.trim() || 'None'}`, 180);
+            notesLines.forEach((line, index) => {
+                doc.text(line, 15, tableY + 25 + (index * 8));
+            });
+
+            // Total Overview
+            const totalY = tableY + 40 + (notesLines.length * 8);
+            doc.setFillColor(245, 245, 245);
+            doc.rect(10, totalY, 190, 30, 'F');
+            doc.setFontSize(12);
+            doc.text(`Original Total: £${currentQuote.totalCost}`, 15, totalY + 10);
+            doc.text(`Discount: ${currentQuote.discountPercent > 0 ? `-${currentQuote.discountPercent}% (£${(currentQuote.totalCost - currentQuote.discountedCost).toFixed(2)})` : 'None'}`, 15, totalY + 20);
+            doc.setFont('helvetica', 'bold');
+            doc.text(`Final Total: £${currentQuote.discountedCost}`, 185, totalY + 20, { align: 'right' });
+            doc.setFont('helvetica', 'normal');
+
+            // Footer
+            doc.setFontSize(8);
+            doc.setTextColor(150);
+            doc.text('Thank you for choosing Dynamic Fit Tech | www.dynamicfittech.com', 105, 280, { align: 'center' });
+            doc.setTextColor(0);
+
+            // Save
+            doc.save(filename);
         });
     </script>
 </body>
