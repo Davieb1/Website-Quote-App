@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Meta tags for character encoding and responsive viewport -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Website Quote App</title>
+    <!-- Title of the webpage -->
+    <title>Website Quote Calculator</title>
+    <!-- CSS styles for layout, responsiveness, and design -->
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -31,10 +34,9 @@
             font-size: 18px;
             color: #34495e;
         }
-        input[type="number"], input[type="text"] {
+        input[type="number"], input[type="text"], select {
             padding: 5px;
             font-size: 16px;
-            width: 100px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
@@ -47,12 +49,9 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
-        select {
-            padding: 5px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 100px;
+        .discount-options {
+            display: flex;
+            gap: 10px;
         }
         button {
             background-color: #3498db;
@@ -67,32 +66,37 @@
         button:hover {
             background-color: #2980b9;
         }
-        #quoteResult {
+        #quoteModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        #modalContent {
+            background: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        #quotePreview {
             display: none;
             background: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
         }
-        #quoteResult.show {
+        #quotePreview.show {
             display: block;
-        }
-        .quote-header {
-            text-align: center;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        .quote-header img {
-            max-width: 200px;
-            height: auto;
-            margin-bottom: 10px;
-            margin-top: 10px;
-        }
-        .quote-header h2 {
-            margin: 0;
-            color: #2c3e50;
-            font-size: 24px;
         }
         .quote-section {
             margin-bottom: 20px;
@@ -102,8 +106,7 @@
             margin-bottom: 10px;
             font-size: 20px;
         }
-        .quote-section p,
-        .quote-section ul {
+        .quote-section p, .quote-section ul {
             margin: 5px 0;
             color: #34495e;
             font-size: 16px;
@@ -111,12 +114,12 @@
         .quote-section ul {
             padding-left: 20px;
         }
-        .download-btn {
+        .modal-btn, .preview-btn {
             display: block;
-            margin: 20px auto 0;
+            margin: 10px auto;
             background-color: #2ecc71;
         }
-        .download-btn:hover {
+        .modal-btn:hover, .preview-btn:hover {
             background-color: #27ae60;
         }
         img {
@@ -128,65 +131,72 @@
         .desktop-only {
             display: block;
         }
-
-        /* Media Query for iPhone 12 Mini (375px) and smaller */
+        .close {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+        }
         @media (max-width: 375px) {
-    body {
-        padding: 10px;
-        font-size: 14px;
-    }
-    h1 {
-        font-size: 22px;
-    }
-    form, #quoteResult {
-        padding: 15px;
-    }
-    label {
-        margin: 10px 0;
-        font-size: 16px;
-    }
-    input[type="number"], select {
-        width: 90px;
-        padding: 4px;
-        font-size: 14px;
-    }
-    textarea {
-        height: 80px;
-        padding: 4px;
-        font-size: 14px;
-    }
-    button {
-        padding: 8px 16px;
-        font-size: 16px;
-        width: 100%;
-        min-height: 44px;
-    }
-    .quote-header h2 {
-        font-size: 20px;
-    }
-    .quote-section h3 {
-        font-size: 18px;
-    }
-    .quote-section p, .quote-section ul {
-        font-size: 14px;
-    }
-    img {
-        width: 80px;
-    }
-    .quote-header img {
-        max-width: 150px;
-    }
-    .quote-section ul {
-        padding-left: 15px;
-    }
-    .desktop-only {
-        display: none;
-    }
-}
+            body {
+                padding: 10px;
+                font-size: 14px;
+            }
+            h1 {
+                font-size: 22px;
+            }
+            form, #modalContent, #quotePreview {
+                padding: 15px;
+            }
+            label {
+                margin: 10px 0;
+                font-size: 16px;
+            }
+            input[type="number"], input[type="text"], select {
+                width: 90px;
+                padding: 4px;
+                font-size: 14px;
+            }
+            textarea {
+                height: 80px;
+                padding: 4px;
+                font-size: 14px;
+            }
+            button {
+                padding: 8px 16px;
+                font-size: 16px;
+                width: 100%;
+                min-height: 44px;
+            }
+            .quote-section h3 {
+                font-size: 18px;
+            }
+            .quote-section p, .quote-section ul {
+                font-size: 14px;
+            }
+            img {
+                width: 80px;
+            }
+            .quote-section ul {
+                padding-left: 15px;
+            }
+            .desktop-only {
+                display: none;
+            }
+            .discount-options {
+                flex-direction: column;
+                gap: 5px;
+            }
+            #modalContent {
+                width: 90%;
+                margin: 10% auto;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Main heading for the calculator -->
     <h1>Website Quote Calculator</h1>
+    <!-- Form for user input to generate a website quote -->
     <form id="quoteForm">
         <img src="Dynamic Fit Tech Logo.jpg" alt="Dynamic Fit Tech Logo">
         <label class="desktop-only">Client Business Name (Optional): <input type="text" id="businessName"></label>
@@ -198,270 +208,449 @@
         <label><input type="checkbox" name="features" value="responsive"> Responsive Design</label>
         <label><input type="checkbox" name="features" value="api-integration"> API Integration</label>
         <label>Additional Features/Notes: <textarea id="additional" placeholder="e.g., Custom login system, animations, etc."></textarea></label>
-        <label>Discount: 
-            <select id="discount">
-                <option value="0">None</option>
-                <option value="5">5% Off</option>
-                <option value="10">10% Off</option>
-                <option value="20">20% Off</option>
-            </select>
+        <label>Client Notes (Optional): <textarea id="clientNotes" placeholder="e.g., Preferred deadline, specific requirements"></textarea></label>
+        <label>Discount:
+            <div class="discount-options">
+                <select id="discountPercent">
+                    <option value="0">0%</option>
+                    <option value="5">5%</option>
+                    <option value="10">10%</option>
+                    <option value="15">15%</option>
+                    <option value="20">20%</option>
+                    <option value="25">25%</option>
+                    <option value="30">30%</option>
+                    <option value="40">40%</option>
+                    <option value="50">50%</option>
+                    <option value="custom">Custom %</option>
+                </select>
+                <input type="number" id="customDiscount" min="1" max="50" placeholder="Custom %" style="display:none; width: 80px;">
+                <input type="number" id="flatDiscount" min="0" placeholder="Flat £ off" style="display:none; width: 80px;">
+                <button type="button" id="toggleCustom">Custom Options</button>
+            </div>
         </label>
         <button type="submit">Generate Quote</button>
     </form>
 
-    <div id="quoteResult">
-        <div class="quote-header">
-            <img src="Dynamic Fit Tech Logo.jpg" alt="Dynamic Fit Tech Logo" id="quoteLogo">
-            <h2>Website Development Quote</h2>
-            <p>Prepared by Dynamic Fit Tech - Date: <span id="quoteDate"></span></p>
-            <p>Quote valid for 30 days from date requested</p>
+    <!-- Modal for displaying the generated quote -->
+    <div id="quoteModal">
+        <div id="modalContent">
+            <span class="close">×</span>
+            <div class="quote-section">
+                <h3>Quote Summary</h3>
+                <p>Business: <span id="modalBusiness"></span></p>
+                <p>Pages: <span id="modalPages"></span></p>
+                <p>Features: <span id="modalFeatures"></span></p>
+                <p id="modalAdditional" style="display:none;">Additional Features/Notes: <span id="modalAdditionalText"></span></p>
+                <p>Client Notes: <span id="modalClientNotes"></span></p>
+                <p>Total Time: <span id="modalTime"></span> hours</p>
+                <p>Original Cost: £<span id="modalOriginalCost"></span></p>
+                <p>Discount Applied: <span id="modalModifier"></span></p>
+                <p>Total Cost: £<span id="modalCost"></span></p>
+                <p>Complexity: <span id="modalComplexity"></span></p>
+                <p>Resources: <span id="modalResources"></span></p>
+                <p>Estimated Timeline: <span id="modalTimeline"></span></p>
+                <div id="modalProgress" style="width: 100%; background-color: #ddd;">
+                    <div id="modalProgressBar" style="height: 20px; background-color: #3498db; width: 0%;"></div>
+                </div>
+                <p>Quote Date: <span id="modalQuoteDate"></span></p>
+                <p>Expiry Date: <span id="modalExpiryDate"></span></p>
+            </div>
+            <div class="quote-section">
+                <h3>Cost Breakdown</h3>
+                <ul id="modalBreakdown"></ul>
+            </div>
+            <div class="quote-section">
+                <h3>Estimated Timeline</h3>
+                <ul id="modalTimelineBreakdown"></ul>
+            </div>
+            <button class="modal-btn" id="downloadModalBtn">Download Quote (PDF)</button>
+            <button class="modal-btn" id="editModalBtn">Edit Quote</button>
         </div>
-        <div class="quote-section">
-            <h3>Project Details</h3>
-            <p>Business: <span id="quoteBusiness"></span></p>
-            <p>Pages: <span id="quotePages"></span></p>
-            <p>Features: <span id="quoteFeatures"></span></p>
-            <p>Additional Features/Notes: <span id="quoteAdditional"></span></p>
-        </div>
-        <div class="quote-section">
-            <h3>Quote Summary</h3>
-            <p>Total Time: <span id="quoteTime"></span> hours</p>
-            <p>Original Cost: £<span id="quoteOriginalCost"></span></p>
-            <p>Discount Applied: <span id="quoteModifier"></span></p>
-            <p>Total Cost: £<span id="quoteCost"></span></p>
-            <p>Complexity: <span id="quoteComplexity"></span></p>
-            <p>Resources: <span id="quoteResources"></span></p>
-        </div>
-        <div class="quote-section">
-            <h3>Estimated Timeline</h3>
-            <p>Total Development Time: <span id="quoteTimeline"></span></p>
-            <ul id="timelineBreakdown"></ul>
-        </div>
-        <div class="quote-section">
-            <h3>Cost Breakdown</h3>
-            <ul id="quoteBreakdown"></ul>
-        </div>
-        <button class="download-btn" id="downloadBtn">Download Quote (PDF)</button>
     </div>
 
-    <!-- jsPDF CDN -->
+    <!-- Preview section for quick quote overview -->
+    <div id="quotePreview">
+        <h3>Quote Preview</h3>
+        <p>Business: <span id="previewBusiness"></span></p>
+        <p>Total Cost: £<span id="previewCost"></span></p>
+        <p>Timeline: <span id="previewTimeline"></span></p>
+        <button class="download-btn" id="downloadFromPreview">Download PDF</button>
+        <button type="button" id="editQuote">Edit Quote</button>
+    </div>
+
+    <!-- Load jsPDF library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Main JavaScript functionality -->
     <script>
-        const { jsPDF } = window.jspdf;
-
-        function calculateQuote(pages, features, additional, discountPercent, businessName) {
-            const hourlyRate = 65;
+    document.addEventListener('DOMContentLoaded', () => {
+            // Access the jsPDF library
+            const { jsPDF } = window.jspdf;
+            // Define global constant for hours worked per week
             const hoursPerWeek = 20;
-            let totalTime = 0;
-            let breakdown = [];
-            let timelineBreakdown = [];
-            let complexity = 'Low';
-            const resources = new Set(['HTML', 'CSS', 'JavaScript']);
 
-            pages = Math.max(1, pages || 1);
-            const pageTime = pages * 5;
-            totalTime += pageTime;
-            breakdown.push(`${pages} Page(s): ${pageTime} hours, £${pageTime * hourlyRate}`);
-            timelineBreakdown.push(`${pages} Page(s): ${Math.ceil(pageTime / hoursPerWeek)} week(s)`);
+            // Function to format date as DD/MM/YYYY
+            function formatDate(date) {
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+                const year = date.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
 
-            const featureCosts = {
-                'e-commerce': { time: 20, resources: ['Node.js', 'Database'] },
-                'custom-design': { time: 15, resources: ['Photoshop', 'CSS'] },
-                'cms': { time: 10, resources: ['WordPress'] },
-                'seo': { time: 8, resources: ['SEO Tools'] },
-                'responsive': { time: 5, resources: [] },
-                'api-integration': { time: 15, resources: ['Node.js'] }
-            };
+            // Function to calculate the quote based on user input
+            function calculateQuote(pages, features, additional, clientNotes, discountPercent, flatDiscount, businessName) {
+                const hourlyRate = 75;
+                let totalTime = 0;
+                let breakdown = [];
+                let timelineBreakdown = [];
+                let complexity = 'Low';
+                const resources = new Set(['HTML', 'CSS', 'JavaScript']);
 
-            features.forEach(feature => {
-                if (featureCosts[feature]) {
-                    const { time, resources: extraResources } = featureCosts[feature];
-                    totalTime += time;
-                    breakdown.push(`${feature}: ${time} hours, £${time * hourlyRate}`);
-                    timelineBreakdown.push(`${feature}: ${Math.ceil(time / hoursPerWeek)} week(s)`);
-                    extraResources.forEach(res => resources.add(res));
+                pages = Math.max(1, pages || 1);
+                const pageTime = pages * 8;
+                totalTime += pageTime;
+                breakdown.push(`${pages} Page(s): ${pageTime} hours, £${pageTime * hourlyRate}`);
+                timelineBreakdown.push(`${pages} Page(s): ${Math.ceil(pageTime / hoursPerWeek)} week(s)`);
+
+                const featureCosts = {
+                    'e-commerce': { time: 40, resources: ['Node.js', 'Database', 'Payment Gateway'] },
+                    'custom-design': { time: 20, resources: ['Photoshop', 'Figma', 'CSS'] },
+                    'cms': { time: 15, resources: ['WordPress', 'PHP'] },
+                    'seo': { time: 12, resources: ['SEO Tools', 'Google Analytics'] },
+                    'responsive': { time: 8, resources: ['Media Queries'] },
+                    'api-integration': { time: 25, resources: ['Node.js', 'REST API'] }
+                };
+
+                features.forEach(feature => {
+                    if (featureCosts[feature]) {
+                        const { time, resources: extraResources } = featureCosts[feature];
+                        totalTime += time;
+                        breakdown.push(`${feature}: ${time} hours, £${time * hourlyRate}`);
+                        timelineBreakdown.push(`${feature}: ${Math.ceil(time / hoursPerWeek)} week(s)`);
+                        extraResources.forEach(res => resources.add(res));
+                    }
+                });
+
+                let additionalTime = 0;
+                if (additional.trim()) {
+                    additionalTime = 15;
+                    totalTime += additionalTime;
+                    breakdown.push(`Additional Features (${additional}): ${additionalTime} hours, £${additionalTime * hourlyRate}`);
+                    timelineBreakdown.push(`Additional Features: ${Math.ceil(additionalTime / hoursPerWeek)} week(s)`);
+                    resources.add('Custom Development');
+                }
+
+                if (totalTime > 60) complexity = 'High';
+                else if (totalTime > 30) complexity = 'Medium';
+
+                const totalCost = totalTime * hourlyRate;
+                let discountedCost = totalCost;
+                let discountApplied = 'None';
+
+                if (flatDiscount > 0 && flatDiscount < totalCost) {
+                    discountedCost = Math.max(0, totalCost - flatDiscount);
+                    discountApplied = `Flat £${flatDiscount} off`;
+                } else if (discountPercent > 0 && discountPercent <= 50) {
+                    const discountMultiplier = 1 - (discountPercent / 100);
+                    discountedCost = Math.round(totalCost * discountMultiplier);
+                    discountApplied = `${discountPercent}% off (£${(totalCost - discountedCost).toFixed(2)})`;
+                }
+
+                const totalWeeks = Math.ceil(totalTime / hoursPerWeek);
+                const quoteDate = new Date(); // Set to current date (e.g., 18/03/2025)
+                const expiryDate = new Date(quoteDate); // Create a copy of quoteDate
+                expiryDate.setDate(quoteDate.getDate() + 30); // Add 30 days for expiry
+
+                return { 
+                    totalTime, 
+                    totalCost, 
+                    discountedCost,
+                    discountApplied,
+                    complexity, 
+                    resources: Array.from(resources), 
+                    breakdown, 
+                    timelineBreakdown, 
+                    totalWeeks, 
+                    pages, 
+                    features, 
+                    additional,
+                    clientNotes,
+                    businessName,
+                    quoteDate: formatDate(quoteDate), // Format as DD/MM/YYYY
+                    expiryDate: formatDate(expiryDate) // Format as DD/MM/YYYY
+                };
+            }
+
+            let currentQuote = null;
+
+            // Event listener for form submission to generate quote
+            const quoteForm = document.getElementById('quoteForm');
+            if (!quoteForm) {
+                console.error('quoteForm element not found');
+                return;
+            }
+            quoteForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const pages = parseInt(document.getElementById('pages').value) || 1;
+                const features = Array.from(document.querySelectorAll('input[name="features"]:checked')).map(input => input.value);
+                const additional = document.getElementById('additional').value.trim();
+                const clientNotes = document.getElementById('clientNotes').value.trim();
+                const discountPercent = parseInt(document.getElementById('discountPercent').value) || 0;
+                const customDiscount = parseInt(document.getElementById('customDiscount').value) || 0;
+                const flatDiscount = parseInt(document.getElementById('flatDiscount').value) || 0;
+                const businessName = document.getElementById('businessName').value.trim();
+                const discountToUse = (document.getElementById('discountPercent').value === 'custom' ? customDiscount : discountPercent);
+
+                if (pages < 1) {
+                    alert('Number of pages must be at least 1.');
+                    return;
+                }
+                if (discountToUse > 50 && !flatDiscount) {
+                    alert('Discount percentage cannot exceed 50%.');
+                    return;
+                }
+
+                currentQuote = calculateQuote(pages, features, additional, clientNotes, discountToUse, flatDiscount, businessName);
+                updateModal();
+                document.getElementById('quoteModal').style.display = 'block';
+            });
+
+            // Event listener for toggling custom discount options
+            const toggleCustom = document.getElementById('toggleCustom');
+            if (!toggleCustom) {
+                console.error('toggleCustom element not found');
+                return;
+            }
+            toggleCustom.addEventListener('click', () => {
+                const customDiscount = document.getElementById('customDiscount');
+                const flatDiscount = document.getElementById('flatDiscount');
+                if (customDiscount.style.display === 'none') {
+                    customDiscount.style.display = 'inline';
+                    flatDiscount.style.display = 'inline';
+                    document.getElementById('discountPercent').value = 'custom';
+                } else {
+                    customDiscount.style.display = 'none';
+                    flatDiscount.style.display = 'none';
+                    document.getElementById('discountPercent').value = '0';
                 }
             });
 
-            let additionalTime = 0;
-            if (additional.trim()) {
-                additionalTime = 10;
-                totalTime += additionalTime;
-                breakdown.push(`Additional Features (${additional}): ${additionalTime} hours, £${additionalTime * hourlyRate}`);
-                timelineBreakdown.push(`Additional Features: ${Math.ceil(additionalTime / hoursPerWeek)} week(s)`);
-                resources.add('Custom Development');
-            }
-
-            if (totalTime > 50) complexity = 'High';
-            else if (totalTime > 20) complexity = 'Medium';
-
-            const totalCost = totalTime * hourlyRate;
-            const discountMultiplier = 1 - (discountPercent / 100);
-            const discountedCost = Math.round(totalCost * discountMultiplier);
-            const totalWeeks = Math.ceil(totalTime / hoursPerWeek);
-
-            return { 
-                totalTime, 
-                totalCost, 
-                discountedCost,
-                discountPercent,
-                complexity, 
-                resources: Array.from(resources), 
-                breakdown, 
-                timelineBreakdown, 
-                totalWeeks, 
-                pages, 
-                features, 
-                additional,
-                businessName 
-            };
-        }
-
-        let currentQuote = null;
-
-        document.getElementById('quoteForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const pages = parseInt(document.getElementById('pages').value);
-            const features = Array.from(document.querySelectorAll('input[name="features"]:checked')).map(input => input.value);
-            const additional = document.getElementById('additional').value;
-            const discountPercent = parseInt(document.getElementById('discount').value);
-            const businessName = document.getElementById('businessName').value.trim();
-
-            currentQuote = calculateQuote(pages, features, additional, discountPercent, businessName);
-
-            document.getElementById('quoteDate').textContent = new Date().toLocaleDateString();
-            document.getElementById('quoteBusiness').textContent = currentQuote.businessName || 'Not Provided';
-            document.getElementById('quotePages').textContent = currentQuote.pages;
-            document.getElementById('quoteFeatures').textContent = currentQuote.features.length > 0 ? currentQuote.features.join(', ') : 'None';
-            document.getElementById('quoteAdditional').textContent = currentQuote.additional.trim() || 'None';
-            document.getElementById('quoteTime').textContent = currentQuote.totalTime;
-            document.getElementById('quoteOriginalCost').textContent = currentQuote.totalCost;
-            document.getElementById('quoteModifier').textContent = currentQuote.discountPercent > 0 ? `${currentQuote.discountPercent}% off` : 'None';
-            document.getElementById('quoteCost').textContent = currentQuote.discountedCost;
-            document.getElementById('quoteComplexity').textContent = currentQuote.complexity;
-            document.getElementById('quoteResources').textContent = currentQuote.resources.join(', ');
-            document.getElementById('quoteTimeline').textContent = `${currentQuote.totalWeeks} week(s)`;
-
-            const breakdownList = document.getElementById('quoteBreakdown');
-            breakdownList.innerHTML = '';
-            currentQuote.breakdown.forEach(item => {
-                const li = document.createElement('li');
-                li.textContent = item;
-                breakdownList.appendChild(li);
+            // Event listener for downloading PDF from modal
+            document.getElementById('downloadModalBtn').addEventListener('click', () => {
+                if (!currentQuote) {
+                    alert('Please generate a quote first!');
+                    return;
+                }
+                generatePDF();
+                document.getElementById('quoteModal').style.display = 'none';
             });
 
-            const timelineList = document.getElementById('timelineBreakdown');
-            timelineList.innerHTML = '';
-            currentQuote.timelineBreakdown.forEach(item => {
-                const li = document.createElement('li');
-                li.textContent = item;
-                timelineList.appendChild(li);
+            // Event listener for downloading PDF from preview
+            document.getElementById('downloadFromPreview').addEventListener('click', () => {
+                if (!currentQuote) {
+                    alert('Please generate a quote first!');
+                    return;
+                }
+                generatePDF();
+                document.getElementById('quotePreview').classList.remove('show');
             });
 
-            document.getElementById('quoteResult').classList.add('show');
-        });
-
-        document.getElementById('downloadBtn').addEventListener('click', () => {
-            if (!currentQuote) {
-                alert('Please generate a quote first!');
-                return;
-            }
-
-            const doc = new jsPDF();
-            const businessName = currentQuote.businessName || 'DynamicFitTech';
-            const filename = businessName ? `Website_Quote_${businessName.replace(/\s+/g, '')}_${new Date().toISOString().split('T')[0]}.pdf` : 'Website_Quote_DynamicFitTech.pdf';
-
-
-            // Header
-            doc.setFillColor(230, 230, 230); // Light gray background
-            doc.rect(0, 0, 210, 40, 'F');
-            const img = document.getElementById('quoteLogo');
-            if (img.complete && img.naturalWidth !== 0) {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                const imgData = canvas.toDataURL('image/jpeg');
-                doc.addImage(imgData, 'JPEG', 10, 5, 30, 30); // Smaller logo
-            }
-            doc.setFontSize(16);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Website Development Quote', 105, 20, { align: 'center' });
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(10);
-            doc.text('Dynamic Fit Tech', 10, 45);
-            doc.text('Email: contact@dynamicfittech.com | Website: www.dynamicfittech.com', 10, 50); /* Change the email here for the contact */
-            doc.text(`Quote Date: ${new Date().toLocaleDateString()}`, 190, 45, { align: 'right' });
-            doc.text('Valid for 30 days', 190, 50, { align: 'right' });
-
-            // Client Info
-            doc.setFontSize(12);
-            doc.text(`Prepared for: ${currentQuote.businessName || 'Client'}`, 10, 65);
-            doc.setDrawColor(200, 200, 200);
-            doc.line(10, 67, 100, 67); // Underline
-
-            // Summary Section
-            doc.setFillColor(245, 245, 245);
-            doc.rect(10, 75, 190, 20, 'F');
-            doc.setFontSize(10);
-            doc.text(`Total Quote: £${currentQuote.discountedCost}`, 15, 85);
-            doc.text(`Timeline: ${currentQuote.totalWeeks} week(s)`, 80, 85);
-            doc.text(`Complexity: ${currentQuote.complexity}`, 140, 85);
-
-            // Breakdown Table
-            doc.setFillColor(230, 230, 230);
-            doc.rect(10, 100, 190, 10, 'F');
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Description', 15, 107);
-            doc.text('Est. Hours', 110, 107);
-            doc.text('Cost (£)', 185, 107, { align: 'right' });
-            doc.setFont('helvetica', 'normal');
-
-            let tableY = 115;
-            currentQuote.breakdown.forEach(item => {
-                const [desc, hoursCost] = item.split(': ');
-                const [hours, cost] = hoursCost.split(', £');
-                const lines = doc.splitTextToSize(desc, 90);
-                lines.forEach((line, index) => {
-                    doc.text(line, 15, tableY + (index * 8));
+            // Event listener for editing quote from modal
+            document.getElementById('editModalBtn').addEventListener('click', () => {
+                document.getElementById('quoteModal').style.display = 'none';
+                document.getElementById('pages').value = currentQuote.pages;
+                document.querySelectorAll('input[name="features"]').forEach(checkbox => {
+                    checkbox.checked = currentQuote.features.includes(checkbox.value);
                 });
-                doc.text(hours.split(' hours')[0], 110, tableY);
-                doc.text(`£${cost}`, 185, tableY, { align: 'right' });
-                tableY += 8 * (lines.length > 1 ? lines.length : 1);
+                document.getElementById('additional').value = currentQuote.additional;
+                document.getElementById('clientNotes').value = currentQuote.clientNotes;
+                document.getElementById('businessName').value = currentQuote.businessName || '';
+                document.getElementById('discountPercent').value = currentQuote.discountApplied.includes('%') ? 
+                    currentQuote.discountApplied.split('%')[0] : '0';
+                document.getElementById('customDiscount').value = '';
+                document.getElementById('flatDiscount').value = currentQuote.discountApplied.includes('Flat') ? 
+                    parseInt(currentQuote.discountApplied.split('£')[1]) : '';
+                if (currentQuote.discountApplied.includes('Flat') || currentQuote.discountApplied.includes('Custom')) {
+                    document.getElementById('customDiscount').style.display = 'inline';
+                    document.getElementById('flatDiscount').style.display = 'inline';
+                }
             });
 
-            // Additional Details
-            doc.setFontSize(10);
-            const resourcesLines = doc.splitTextToSize(`Resources: ${currentQuote.resources.join(', ')}`, 180);
-            resourcesLines.forEach((line, index) => {
-                doc.text(line, 15, tableY + 10 + (index * 8));
+            // Event listener for editing quote from preview
+            document.getElementById('editQuote').addEventListener('click', () => {
+                document.getElementById('quotePreview').classList.remove('show');
+                document.getElementById('pages').value = currentQuote.pages;
+                document.querySelectorAll('input[name="features"]').forEach(checkbox => {
+                    checkbox.checked = currentQuote.features.includes(checkbox.value);
+                });
+                document.getElementById('additional').value = currentQuote.additional;
+                document.getElementById('clientNotes').value = currentQuote.clientNotes;
+                document.getElementById('businessName').value = currentQuote.businessName || '';
+                document.getElementById('discountPercent').value = currentQuote.discountApplied.includes('%') ? 
+                    currentQuote.discountApplied.split('%')[0] : '0';
+                document.getElementById('customDiscount').value = '';
+                document.getElementById('flatDiscount').value = currentQuote.discountApplied.includes('Flat') ? 
+                    parseInt(currentQuote.discountApplied.split('£')[1]) : '';
+                if (currentQuote.discountApplied.includes('Flat') || currentQuote.discountApplied.includes('Custom')) {
+                    document.getElementById('customDiscount').style.display = 'inline';
+                    document.getElementById('flatDiscount').style.display = 'inline';
+                }
             });
-            const notesLines = doc.splitTextToSize(`Notes: ${currentQuote.additional.trim() || 'None'}`, 180);
-            notesLines.forEach((line, index) => {
-                doc.text(line, 15, tableY + 25 + (index * 8));
+
+            // Event listener for closing the modal
+            document.getElementsByClassName('close')[0].addEventListener('click', () => {
+                document.getElementById('quoteModal').style.display = 'none';
             });
 
-            // Total Overview
-            const totalY = tableY + 40 + (notesLines.length * 8);
-            doc.setFillColor(245, 245, 245);
-            doc.rect(10, totalY, 190, 30, 'F');
-            doc.setFontSize(12);
-            doc.text(`Original Total: £${currentQuote.totalCost}`, 15, totalY + 10);
-            doc.text(`Discount: ${currentQuote.discountPercent > 0 ? `-${currentQuote.discountPercent}% (£${(currentQuote.totalCost - currentQuote.discountedCost).toFixed(2)})` : 'None'}`, 15, totalY + 20);
-            doc.setFont('helvetica', 'bold');
-            doc.text(`Final Total: £${currentQuote.discountedCost}`, 185, totalY + 20, { align: 'right' });
-            doc.setFont('helvetica', 'normal');
+            // Event listener for closing modal when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === document.getElementById('quoteModal')) {
+                    document.getElementById('quoteModal').style.display = 'none';
+                }
+            });
 
-            // Footer
-            doc.setFontSize(8);
-            doc.setTextColor(150);
-            doc.text('Thank you for choosing Dynamic Fit Tech | www.dynamicfittech.com', 105, 280, { align: 'center' });
-            doc.setTextColor(0);
+            // Function to update the modal with quote details
+            function updateModal() {
+                document.getElementById('modalBusiness').textContent = currentQuote.businessName || 'Not Provided';
+                document.getElementById('modalPages').textContent = currentQuote.pages;
+                document.getElementById('modalFeatures').textContent = currentQuote.features.length > 0 ? currentQuote.features.join(', ') : 'None';
+                if (currentQuote.additional.trim()) {
+                    document.getElementById('modalAdditional').style.display = 'block';
+                    document.getElementById('modalAdditionalText').textContent = currentQuote.additional.trim();
+                } else {
+                    document.getElementById('modalAdditional').style.display = 'none';
+                }
+                document.getElementById('modalClientNotes').textContent = currentQuote.clientNotes.trim() || 'None';
+                document.getElementById('modalTime').textContent = currentQuote.totalTime;
+                document.getElementById('modalOriginalCost').textContent = currentQuote.totalCost;
+                document.getElementById('modalModifier').textContent = currentQuote.discountApplied;
+                document.getElementById('modalCost').textContent = currentQuote.discountedCost;
+                document.getElementById('modalComplexity').textContent = currentQuote.complexity;
+                document.getElementById('modalResources').textContent = currentQuote.resources.join(', ');
+                document.getElementById('modalTimeline').textContent = `${currentQuote.totalWeeks} week(s)`;
+                const modalProgressBar = document.getElementById('modalProgressBar');
+                const progress = (currentQuote.totalTime / (currentQuote.totalWeeks * hoursPerWeek)) * 100;
+                modalProgressBar.style.width = `${Math.min(100, progress)}%`;
+                document.getElementById('modalQuoteDate').textContent = currentQuote.quoteDate; // Use formatted date
+                document.getElementById('modalExpiryDate').textContent = currentQuote.expiryDate; // Use formatted date
 
-            // Save
-            doc.save(filename);
+                const modalBreakdown = document.getElementById('modalBreakdown');
+                modalBreakdown.innerHTML = '';
+                currentQuote.breakdown.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    modalBreakdown.appendChild(li);
+                });
+
+                const modalTimelineBreakdown = document.getElementById('modalTimelineBreakdown');
+                modalTimelineBreakdown.innerHTML = '';
+                currentQuote.timelineBreakdown.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    modalTimelineBreakdown.appendChild(li);
+                });
+            }
+
+            // Function to update the preview section with quote details
+            function updatePreview() {
+                document.getElementById('previewBusiness').textContent = currentQuote.businessName || 'Not Provided';
+                document.getElementById('previewCost').textContent = currentQuote.discountedCost;
+                document.getElementById('previewTimeline').textContent = `${currentQuote.totalWeeks} week(s)`;
+                document.getElementById('quotePreview').classList.add('show');
+            }
+
+            // Function to generate and download the quote as a PDF
+            function generatePDF() {
+                const doc = new jsPDF();
+                const businessName = currentQuote.businessName || 'DynamicFitTech';
+                const filename = businessName ? `Website_Quote_${businessName.replace(/\s+/g, '')}_${currentQuote.quoteDate.split('/').reverse().join('-')}.pdf` : `Website_Quote_DynamicFitTech_${currentQuote.quoteDate.split('/').reverse().join('-')}.pdf`;
+
+                doc.setFillColor(230, 230, 230);
+                doc.rect(0, 0, 210, 40, 'F');
+                const img = document.querySelector('img');
+                if (img && img.complete && img.naturalWidth !== 0) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    const imgData = canvas.toDataURL('image/jpeg');
+                    doc.addImage(imgData, 'JPEG', 10, 5, 30, 30);
+                }
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Website Development Quote', 105, 20, { align: 'center' });
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                doc.text('Dynamic Fit Tech', 10, 45);
+                doc.text('Email: daviebirrell28@gmail.com | Website: www.dynamicfittech.com', 10, 50); // Change email here
+                doc.text(`Quote Date: ${currentQuote.quoteDate}`, 190, 45, { align: 'right' });
+                doc.text(`Expiry Date: ${currentQuote.expiryDate}`, 190, 50, { align: 'right' });
+
+                doc.setFontSize(12);
+                doc.text(`Prepared for: ${currentQuote.businessName || 'Client'}`, 10, 65);
+                doc.setDrawColor(200, 200, 200);
+                doc.line(10, 67, 100, 67);
+
+                doc.setFillColor(245, 245, 245);
+                doc.rect(10, 75, 190, 20, 'F');
+                doc.setFontSize(10);
+                doc.text(`Total Quote: £${currentQuote.discountedCost}`, 15, 85);
+                doc.text(`Timeline: ${currentQuote.totalWeeks} week(s)`, 80, 85);
+                doc.text(`Complexity: ${currentQuote.complexity}`, 140, 85);
+
+                doc.setFillColor(230, 230, 230);
+                doc.rect(10, 100, 190, 10, 'F');
+                doc.setFont('helvetica', 'bold');
+                doc.text('Description', 15, 107);
+                doc.text('Est. Hours', 110, 107);
+                doc.text('Cost (£)', 185, 107, { align: 'right' });
+                doc.setFont('helvetica', 'normal');
+
+                let tableY = 115;
+                currentQuote.breakdown.forEach(item => {
+                    const [desc, hoursCost] = item.split(': ');
+                    const [hours, cost] = hoursCost.split(', £');
+                    const lines = doc.splitTextToSize(desc, 90);
+                    lines.forEach((line, index) => {
+                        doc.text(line, 15, tableY + (index * 8));
+                    });
+                    doc.text(hours.split(' hours')[0], 110, tableY);
+                    doc.text(`£${cost}`, 185, tableY, { align: 'right' });
+                    tableY += 8 * (lines.length > 1 ? lines.length : 1);
+                });
+
+                const resourcesLines = doc.splitTextToSize(`Resources: ${currentQuote.resources.join(', ')}`, 180);
+                resourcesLines.forEach((line, index) => {
+                    doc.text(line, 15, tableY + 10 + (index * 8));
+                });
+                if (currentQuote.additional.trim()) {
+                    const notesLines = doc.splitTextToSize(`Notes: ${currentQuote.additional.trim()}`, 180);
+                    notesLines.forEach((line, index) => {
+                        doc.text(line, 15, tableY + 25 + (index * 8));
+                    });
+                }
+                const clientNotesLines = doc.splitTextToSize(`Client Notes: ${currentQuote.clientNotes.trim() || 'None'}`, 180);
+                clientNotesLines.forEach((line, index) => {
+                    doc.text(line, 15, tableY + 40 + (index * 8));
+                });
+
+                const totalY = tableY + 50 + (clientNotesLines.length * 8);
+                doc.setFillColor(245, 245, 245);
+                doc.rect(10, totalY, 190, 30, 'F');
+                doc.setFontSize(12);
+                doc.text(`Original Total: £${currentQuote.totalCost}`, 15, totalY + 10);
+                doc.text(`Discount: ${currentQuote.discountApplied}`, 15, totalY + 20);
+                doc.setFont('helvetica', 'bold');
+                doc.text(`Final Total: £${currentQuote.discountedCost}`, 185, totalY + 20, { align: 'right' });
+                doc.setFont('helvetica', 'normal');
+
+                doc.setFontSize(8);
+                doc.setTextColor(150);
+                doc.text('Thank you for choosing Dynamic Fit Tech | www.dynamicfittech.com', 105, 280, { align: 'center' });
+                doc.setTextColor(0);
+
+                doc.save(filename);
+            }
         });
     </script>
 </body>
